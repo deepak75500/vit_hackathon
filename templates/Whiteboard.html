@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnAble Whiteboard</title>
+    <style>
+        /* Global Styles */
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Container Styling */
+        .container {
+            position: relative;
+            width: 90%;
+            max-width: 1200px;
+            background-color: #1a1a1a;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #FFD700;
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        /* Controls Panel */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .controls .left-controls, .controls .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Canvas Styling */
+        canvas {
+            border: 1px solid #FFD700;
+            background-color: #222;
+            cursor: crosshair;
+        }
+
+        /* Button Styling */
+        .controls button, .controls select {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        #solution {
+            margin-top: 20px;
+            text-align: center;
+            color: #FFD700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>LearnAble Whiteboard</h1>
+        </div>
+
+        <div class="controls">
+            <div class="left-controls">
+                <button onclick="undo()">Undo</button>
+                <button onclick="clearCanvas()">Clear</button>
+                <label for="brushSize">Brush Size:</label>
+                <select id="brushSize" onchange="changeBrushSize(this.value)">
+                    <option value="2">Small</option>
+                    <option value="5" selected>Medium</option>
+                    <option value="10">Large</option>
+                </select>
+            </div>
+            <div class="right-controls">
+                <label for="colorPicker">Brush Color:</label>
+                <input type="color" id="colorPicker" value="#000000" onchange="changeBrushColor(this.value)">
+<!--                <button onclick="solveMath()">Solve Math</button>-->
+            </div>
+        </div>
+
+        <canvas id="canvas" width="1200" height="600"></canvas>
+
+        <div id="solution"></div>
+    </div>
+
+    <!-- Tesseract.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let brushSize = 5;
+        let brushColor = "#000000";
+
+        // Undo stack
+        let undoStack = [];
+
+        // Save current canvas state to undo stack
+        function saveState() {
+            undoStack.push(canvas.toDataURL());
+            if (undoStack.length > 20) { // Limit undo stack size
+                undoStack.shift();
+            }
+        }
+
+        // Restore the last saved state
+        function undo() {
+            if (undoStack.length > 0) {
+                const imgData = undoStack.pop();
+                const img = new Image();
+                img.src = imgData;
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                };
+            }
+        }
+
+        // Start drawing
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+            saveState();
+        }
+
+        // Draw on canvas
+        function draw(e) {
+            if (!isDrawing) return;
+            ctx.strokeStyle = brushColor;
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        // Stop drawing
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        // Clear the canvas
+        function clearCanvas() {
+            saveState();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById("solution").innerHTML = ''; // Clear the solution area
+        }
+
+        // Change brush size
+        function changeBrushSize(size) {
+            brushSize = size;
+        }
+
+        // Change brush color
+        function changeBrushColor(color) {
+            brushColor = color;
+        }
+
+        // Solve the drawn math problem using OCR (Tesseract.js)
+        function solveMath() {
+    const imageData = canvas.toDataURL("image/png");
+
+    // Use Tesseract.js to recognize text from the canvas
+    Tesseract.recognize(
+        imageData,
+        'eng',  // Language
+        {
+            logger: (m) => console.log(m), // Optional logging for Tesseract.js progress
+        }
+    ).then(({ data: { text } }) => {
+        const mathProblem = text.trim();
+        document.getElementById("solution").innerHTML = `Recognized Problem: ${mathProblem}`;
+
+        // Send the recognized math question to the backend (Flask)
+        fetch('/solve_math', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ question: mathProblem })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Display the solution returned from the backend
+            document.getElementById("solution").innerHTML += `<br>Solution: ${data.solution}`;
+        })
+        .catch(error => {
+            document.getElementById("solution").innerHTML += `<br>Error: Unable to solve`;
+        });
+    });
+}
+
+
+        // Event listeners
+        canvas.addEventListener("mousedown", startDrawing);
+        canvas.addEventListener("mousemove", draw);
+        canvas.addEventListener("mouseup", stopDrawing);
+        canvas.addEventListener("mouseout", stopDrawing);
+
+        // Prevent context menu on right-click
+        canvas.addEventListener("contextmenu", function(e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>

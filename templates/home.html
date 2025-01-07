@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnAble - Your Smart Learning Companion</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+            color: #333;
+        }
+        header {
+            background: linear-gradient(90deg, #000, #FFD700);
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        nav {
+            display: flex;
+            gap: 15px;
+        }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 5px 10px;
+            transition: background 0.3s;
+        }
+        nav a:hover {
+            background: #FFD700;
+            color: #000;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 50px 20px;
+            background: url('static/LearnAble_bg2.png') no-repeat center center/cover;
+            color: #fff;
+        }
+        .hero h2 {
+            font-size: 36px;
+        }
+        .hero p {
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .hero .btn {
+            background-color: #FFD700;
+            color: #000;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .hero .btn:hover {
+            transform: scale(1.1);
+        }
+
+    /* General Styles */
+    .container {
+        max-width: 900px;
+        margin: 30px auto;
+        padding: 20px;
+        background: #f0c837;
+        border-radius: 15px;
+        border: 2px solid #ffffff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        font-family: 'Poppins', sans-serif;
+    }
+    h2 {
+        text-align: center;
+        font-size: 2rem;
+        color: #ffcc00;
+        margin-bottom: 20px;
+    }
+    .section {
+        padding: 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 10px;
+        background: linear-gradient(to bottom right, #000000, #4a4a4b);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    textarea {
+        width: 95%;
+        padding: 15px;
+        font-size: 1rem;
+        border: 2px solid #ffffff;
+        border-radius: 10px;
+        height: 100px;
+        resize: none;
+        transition: all 0.3s ease;
+    }
+    textarea:focus {
+        border-color: #4a90e2;
+        outline: none;
+        box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+    }
+    .btn {
+        display: block;
+        width: 100%;
+        max-width: 200px;
+        margin: 20px auto;
+        padding: 12px;
+        background: #ffcc00;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .btn:hover {
+        background: #357ab7;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .summary-box {
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid #dce7f3;
+        border-radius: 10px;
+        background: #f9fcff;
+        box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+    .summary-box h3 {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    .summary-box p {
+        font-size: 1rem;
+        color: #555;
+        line-height: 1.6;
+    }
+    /* Add subtle animations */
+    textarea, .btn, .summary-box {
+        animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+        .section {
+            margin: 30px 0;
+        }
+        .section h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #FFD700;
+        }
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+        .feature-box {
+            background: #000;
+            color: #FFD700;
+            padding: 20px;
+            border-radius: 10px;
+            flex: 1 1 30%;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        .feature-box img {
+            width: 150px;
+            margin-bottom: 10px;
+        }
+        .feature-box h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .feature-box p {
+            font-size: 16px;
+        }
+
+        footer {
+            background-color: #000;
+            color: #FFD700;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>LearnAble</h1>
+        <nav>
+            <a href="{{ url_for('summary_chatbot') }}">Chatbot</a>
+            <a href="{{ url_for('quiz') }}">Quiz</a>
+<a href="#" id="navigatorBtn">Navigator</a>
+            <a href="#features">Features</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h2>Welcome to LearnAble!</h2>
+        <p>Your ultimate education companion for smarter learning.</p>
+        <button class="btn">Get Started</button>
+    </section>
+
+    <div class="container">
+        <div id="summary-chatbot" class="section">
+            <h2>Summary Chatbot</h2>
+            <textarea id="inputText" placeholder="Type or paste your text to summarize...."></textarea>
+            <button class="btn" id="submitBtn">Summarize</button>
+            <button class="btn" id="audioBtn">Speech</button>
+
+            <div id="summaryResult" class="summary-box" style="display: none;">
+                <h3>Summary:</h3>
+                <p id="summaryText"></p>
+                <button class="btn" id="reListenBtn">Re-listen</button>
+            </div>
+        </div>
+    </div>
+    <!-- Features Section -->
+        <div id="features" class="section">
+            <h2>Features</h2>
+            <div class="features">
+                <div class="feature-box">
+                    <a href="{{ url_for('summary_chatbot') }}"><img src="static/Translator.png" alt="Translate"></a>
+                    <h3>Translate</h3>
+                    <p>Understand concepts in multiple languages with ease.</p>
+                </div>
+                <div class="feature-box">
+                    <a href="{{ url_for('summary_chatbot') }}"><img src="static/Dictionary.png" alt="Word Dictionary"></a>
+                    <h3>Word Dictionary</h3>
+                    <p>Browse and save words you’ve learned.</p>
+                </div>
+                <div class="feature-box">
+                    <a href="{{ url_for('summary_chatbot') }}"><img src="static/Creative_writings.png" alt="Creative Writing"></a>
+                    <h3>Creative Writing</h3>
+                    <p>Generate templates for letters, reports, and notices.</p>
+                </div>
+                <div class="feature-box">
+                    <a href="{{ url_for('pronunce') }}"><img src="static/Phonetics.png" alt="Phonetics"></a>
+                    <h3>Phonetics</h3>
+                    <p>Learn pronunciations with phonetic guidance.</p>
+                </div>
+                <div class="feature-box">
+                    <a href="{{ url_for('Whiteboard') }}"><img src="static/Whiteboard.png" alt="Whiteboard"></a>
+                    <h3>Whiteboard</h3>
+                    <p>Interactive whiteboard for collaborative learning.</p>
+                </div>
+                <div class="feature-box">
+                    <a href="{{ url_for('summary_chatbot') }}"><img src="static/Acronyms.png" alt="Acronyms"></a>
+                    <h3>Acronym Generator</h3>
+                    <p>Get creative acronyms for your inputs.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer id="contact">
+        <p>LearnAble © 2024 | Your Smart Learning Companion</p>
+    </footer>
+<script>
+    document.getElementById("submitBtn").addEventListener("click", function () {
+        const inputText = document.getElementById("inputText").value;
+        fetch("/summary_chatbot", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ text: inputText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("summaryText").innerText = data.summary;
+            document.getElementById("summaryResult").style.display = "block";
+
+            // Automatically read the summary text when the page loads
+            readTextAloud(data.summary);
+        })
+        .catch(error => console.error("Error:", error));
+    });
+
+
+
+    document.getElementById("reListenBtn").addEventListener("click", function () {
+        const summaryText = document.getElementById("summaryText").innerText;
+
+        // Re-read the summary aloud when the "Re-listen" button is clicked
+        readTextAloud(summaryText);
+    });
+
+    // Function to read the text aloud
+    function readTextAloud(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // Speech-to-text functionality for inputText
+    document.getElementById("audioBtn").addEventListener("click", function () {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("Your browser does not support the Web Speech API. Please use a modern browser like Chrome.");
+            return;
+        }
+
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = "en-US";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.start();
+
+        recognition.onresult = function (event) {
+            const transcript = event.results[0][0].transcript;
+            const inputTextArea = document.getElementById("inputText");
+            inputTextArea.value += transcript + " ";
+        };
+
+        recognition.onerror = function (event) {
+            console.error("Speech recognition error:", event.error);
+        };
+
+        recognition.onend = function () {
+            console.log("Speech recognition ended.");
+        };
+    });
+    document.getElementById("navigatorBtn").addEventListener("click", function () {
+    if (!('webkitSpeechRecognition' in window)) {
+        alert("Your browser does not support the Web Speech API. Please use a modern browser like Chrome.");
+        return;
+    }
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.start();
+
+    recognition.onresult = function (event) {
+        const transcript = event.results[0][0].transcript;
+        fetch("/navigate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ text: transcript })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.page_url;  // Redirect to the identified page
+            } else {
+                alert("Could not understand the command.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    };
+
+    recognition.onerror = function (event) {
+        console.error("Speech recognition error:", event.error);
+    };
+
+    recognition.onend = function () {
+        console.log("Speech recognition ended.");
+    };
+});
+
+</script>
+
+
+</body>
+</html>

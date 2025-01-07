@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnAble - Syllabification</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+            background: linear-gradient(135deg, #fff, #f6f6f6);
+            background-image: url('static/syll.gif');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            width: 100%;
+            padding: 20px 0;
+            background: black;
+            color: #ffcc00;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Form Styles */
+        .form-container {
+            margin: 40px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            color: #fff;
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-container input[type="file"] {
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #ffcc00;
+            border-radius: 5px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-container input[type="file"]:hover {
+            border-color: white;
+            background: #ffcc00;
+        }
+
+        .form-container button {
+            padding: 12px 25px;
+            background: #ffcc00;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-container button:hover {
+            background: white;
+            color: #ffcc00;
+        }
+
+        /* Syllabified Words Container */
+        .output-container {
+            width: 90%;
+            max-width: 1000px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .output-container h2 {
+            margin: 0;
+            color: #ffcc00;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .syllabified-words {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .word {
+            padding: 12px 18px;
+            background: #ffcc00;
+            color: black;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .word:hover {
+            background: white;
+            color: #ffcc00;
+            transform: scale(1.1);
+        }
+
+        /* Buttons */
+        .control-buttons button {
+            margin: 10px;
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 5px;
+            background: #ffcc00;
+            color: black;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-buttons button:hover {
+            background: white;
+            color: #ffcc00;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding: 15px 0;
+            width: 150%;
+            max-width: 10000px;
+            background: black;
+            color: white;
+            text-align: center;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .form-container {
+                width: 90%;
+                padding: 15px;
+            }
+
+            .output-container h2 {
+                font-size: 1.8rem;
+            }
+
+            .word {
+                font-size: 1rem;
+                padding: 10px 15px;
+            }
+
+            .control-buttons button {
+                font-size: 1rem;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>LearnAble - Syllabification and Pronunciation</h1>
+    </header>
+    <div class="form-container">
+        <h2>Upload a PDF</h2>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" name="file" id="fileInput" accept=".pdf">
+            <button type="submit">Upload and Process</button>
+        </form>
+    </div>
+    <div class="output-container" id="output">
+        <h2>Syllabified Words</h2>
+        <div class="syllabified-words" id="syllabifiedWords"></div>
+        <div class="control-buttons">
+            <button id="readAllButton">Read All Words</button>
+            <button id="stopButton">Stop</button>
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2024 LearnAble. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const uploadForm = document.getElementById("uploadForm");
+        const syllabifiedWordsDiv = document.getElementById("syllabifiedWords");
+        const readAllButton = document.getElementById("readAllButton");
+        const stopButton = document.getElementById("stopButton");
+
+        uploadForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const fileInput = document.getElementById("fileInput");
+            if (!fileInput.files.length) {
+                alert("Please select a file.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            const response = await fetch("/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await response.json();
+            if (result.error) {
+                alert(result.error);
+            } else {
+                displaySyllabifiedWords(result.syllabified_text);
+            }
+        });
+
+        function displaySyllabifiedWords(words) {
+            syllabifiedWordsDiv.innerHTML = ""; // Clear previous results
+            words.forEach((word) => {
+                const wordDiv = document.createElement("div");
+                wordDiv.className = "word";
+                wordDiv.textContent = word;
+                wordDiv.addEventListener("click", () => speak(word));
+                syllabifiedWordsDiv.appendChild(wordDiv);
+            });
+        }
+
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text.replace(/-/g, " "));
+            speechSynthesis.speak(utterance);
+        }
+
+        readAllButton.addEventListener("click", () => {
+            const allWords = Array.from(syllabifiedWordsDiv.children).map((child) => child.textContent);
+            const utterance = new SpeechSynthesisUtterance(allWords.join(" "));
+            speechSynthesis.speak(utterance);
+        });
+
+        stopButton.addEventListener("click", () => {
+            speechSynthesis.cancel();
+        });
+    </script>
+</body>
+</html>

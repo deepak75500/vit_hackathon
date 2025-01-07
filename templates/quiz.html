@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnAble Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1c1c1c; /* Black background */
+            color: #f1f1f1; /* White text */
+            font-family: 'Roboto', sans-serif;
+        }
+
+        h1 {
+            color: #f1f1f1;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .quiz-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #2e2e2e; /* Dark gray background */
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #f1f1f1;
+        }
+
+        .answer {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #d1b00f; /* Chrome yellow */
+            border: none;
+            color: black;
+            cursor: pointer;
+            width: 100%;
+            font-size: 18px;
+            border-radius: 8px;
+        }
+
+        .answer:hover {
+            background-color: #b88f00; /* Darker chrome yellow */
+        }
+
+        .response {
+            font-size: 18px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .next-btn {
+            margin-top: 20px;
+            background-color: #d1b00f;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .next-btn:hover {
+            background-color: #b88f00;
+        }
+    </style>
+</head>
+<body>
+    <h1>LearnAble Quiz</h1>
+
+    <div class="quiz-container">
+        <div class="question" id="question"></div>
+        <input type="text" id="answer" class="answer" placeholder="Your answer...">
+        <button class="answer" id="submit-answer">Submit Answer</button>
+        <div class="response" id="response"></div>
+        <button class="next-btn" id="next-question" style="display:none;">Next Question</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Fetch the topic from the user or provide an input
+            let topic = prompt("Enter the topic for the quiz:");
+
+            function fetchQuestion() {
+                fetch('/get_question', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic: topic })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.question) {
+                        document.getElementById('question').textContent = data.question;
+                        document.getElementById('submit-answer').onclick = function() {
+                            submitAnswer(data.answer);
+                        };
+                    }
+                });
+            }
+
+            function submitAnswer(correctAnswer) {
+                const userAnswer = document.getElementById('answer').value.trim();
+                fetch('/submit_answer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ answer: userAnswer, correct_answer: correctAnswer })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('response').textContent = data.response;
+                    document.getElementById('next-question').style.display = 'block';
+                });
+            }
+
+            document.getElementById('next-question').onclick = function() {
+                fetchQuestion();
+                document.getElementById('response').textContent = '';
+                document.getElementById('next-question').style.display = 'none';
+            };
+
+            fetchQuestion();
+        });
+    </script>
+</body>
+</html>
