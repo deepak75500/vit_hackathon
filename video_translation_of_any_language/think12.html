@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Search</title>
+    <style>
+        /* General body styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Page title and input */
+h1 {
+    text-align: center;
+    font-size: 2em;
+    color: #333;
+    margin-top: 30px;
+    font-weight: bold;
+}
+
+/* Search bar and button styling */
+#searchQuery {
+    width: 300px;
+    padding: 12px;
+    font-size: 1em;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+#searchQuery:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+button {
+    padding: 12px 20px;
+    font-size: 1em;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Container for video results */
+#videoResults {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Video box styling */
+.video {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 300px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.video:hover {
+    transform: translateY(-10px);
+}
+
+/* Video thumbnail image */
+.video img {
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.video img:hover {
+    transform: scale(1.05);
+}
+
+/* Video title */
+.video h3 {
+    font-size: 1.1em;
+    color: #333;
+    margin: 10px;
+    text-align: center;
+    transition: color 0.3s ease;
+}
+
+.video h3 a {
+    text-decoration: none;
+    color: #007BFF;
+}
+
+.video h3 a:hover {
+    color: #0056b3;
+}
+
+/* Video description and details */
+.video p {
+    padding: 10px;
+    font-size: 0.95em;
+    color: #666;
+    line-height: 1.5;
+    text-align: justify;
+}
+
+.video p strong {
+    font-weight: bold;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    #searchQuery {
+        width: 80%;
+    }
+
+    #videoResults {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .video {
+        width: 80%;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <h1>Search YouTube Videos</h1>
+    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<input type="text" id="searchQuery" placeholder="Enter a topic" style="width: 300px; padding: 10px; align-items: center;">
+    <button onclick="searchVideos()" style="padding: 10px;">Search</button>
+    <div id="videoResults"></div>
+
+    <script>
+        const API_KEY = "AIzaSyBUEuCmw24iwS6EnsYckHgHOQIThD_6qNk"; // Replace with your API key
+        const BASE_URL = "https://www.googleapis.com/youtube/v3/search";
+
+        async function searchVideos() {
+            const query = document.getElementById("searchQuery").value;
+            if (!query) {
+                alert("Please enter a topic to search.");
+                return;
+            }
+
+            let videos = [];
+            let nextPageToken = null;
+
+            try {
+                // Fetch up to 100 videos (two pages of results)
+                for (let i = 0; i < 2; i++) {
+                    const response = await fetch(`${BASE_URL}?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=50&key=${API_KEY}${nextPageToken ? `&pageToken=${nextPageToken}` : ""}`);
+                    const data = await response.json();
+
+                    videos = videos.concat(data.items);
+                    nextPageToken = data.nextPageToken;
+
+                    if (!nextPageToken) break;
+                }
+
+                displayVideos(videos);
+            } catch (error) {
+                console.error("Error fetching videos:", error);
+                alert("An error occurred while fetching videos. Please try again later.");
+            }
+        }
+
+        function displayVideos(videos) {
+            const resultsDiv = document.getElementById("videoResults");
+            resultsDiv.innerHTML = ""; // Clear previous results
+
+            if (videos.length === 0) {
+                resultsDiv.innerHTML = "<p>No videos found.</p>";
+                return;
+            }
+
+            videos.forEach(video => {
+                const videoElement = document.createElement("div");
+                videoElement.className = "video";
+
+                const videoUrl = `https://www.youtube.com/watch?v=${video.id.videoId}`;
+
+                videoElement.innerHTML = `
+                    <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}" onclick="sendToFlask('${videoUrl}')">
+                    <h3><a href="#" onclick="sendToFlask('${videoUrl}')">${video.snippet.title}</a></h3>
+                    <p>${video.snippet.description}</p>
+                    <p><strong>Channel:</strong> ${video.snippet.channelTitle}</p>
+                    <p><strong>Published:</strong> ${new Date(video.snippet.publishTime).toLocaleDateString()}</p>
+                `;
+
+                resultsDiv.appendChild(videoElement);
+            });
+        }
+
+        function sendToFlask(url) {
+            alert(`Video URL: ${url}`);
+
+            // Send URL to Flask via POST request
+            fetch('/receive-url', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ video_url: url })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log("URL successfully sent to Flask!");
+                } else {
+                    console.error("Failed to send URL to Flask.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>
+
+  
